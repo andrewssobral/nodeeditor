@@ -6,9 +6,21 @@ project(NodeEditor CXX)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
 
-include(CTest)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-option(BUILD_EXAMPLES "Build Examples" ON)
+if(NOT DEFINED BUILD_EXAMPLES)
+  set(BUILD_EXAMPLES ON)
+endif()
+message(STATUS "BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
+
+#if(NOT DEFINED BUILD_TESTING)
+  set(BUILD_TESTING OFF)
+#endif()
+message(STATUS "BUILD_TESTING: ${BUILD_TESTING}")
+
+if(POLICY CMP0071)
+  cmake_policy(SET CMP0071 NEW)
+endif()
 
 # Find the QtWidgets library
 find_package(Qt5 COMPONENTS
@@ -22,6 +34,9 @@ qt5_add_resources(RESOURCES ./resources/resources.qrc)
 # Unfortunately, as we have a split include/src, AUTOMOC doesn't work.
 # We'll have to manually specify some files
 set(CMAKE_AUTOMOC ON)
+
+# Handle the Qt uic code generator automatically
+set(CMAKE_AUTOUIC ON)
 
 set(CPP_SOURCE_FILES
   src/Connection.cpp
@@ -128,6 +143,8 @@ endif()
 ##
 
 if(BUILD_TESTING)
+  find_package(Catch2 REQUIRED)
+  include(CTest)
   add_subdirectory(test)
 endif()
 
